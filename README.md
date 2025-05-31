@@ -1,4 +1,6 @@
-# 🚀 Xianyu AutoAgent - 智能闲鱼客服机器人系统
+# 🚀 Xianyu AutoAgent - 智能闲鱼客服机器人系统   
+运行 pip install flask psutil 安装新增的依赖
+使用 python start.py 或 python manager.py 启动系统
 
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/) [![LLM Powered](https://img.shields.io/badge/LLM-powered-FF6F61)](https://platform.openai.com/)
 
