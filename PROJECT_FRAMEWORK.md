@@ -1,176 +1,203 @@
-# XianyuAutoAgent 项目框架文档
+# 咸鱼外挂AI客服系统 - 项目架构文档
 
-## 📋 文档目的
-本文档记录XianyuAutoAgent（智能闲鱼客服机器人系统）的核心框架信息，使AI工具能够快速理解项目架构并生成相关代码。
+## 📋 项目概述
+咸鱼外挂AI客服系统，通过登录cookie操作用户账户进行AI客服回复行为。系统包含命令行客户端和Web前端管理界面。
 
 ## 🏗️ 项目架构概览
 
-### 实际目录结构
+### 目录结构
 ```
 XianyuAutoAgent/
-├── main.py                    # 主程序入口 - WebSocket连接和消息处理
-├── XianyuAgent.py            # AI回复机器人核心逻辑
-├── XianyuApis.py             # 闲鱼API接口封装
-├── context_manager.py        # 聊天上下文管理器
-├── utils/                    # 工具函数目录
+├── main.py                     # 主程序入口 - 咸鱼WebSocket客服服务
+├── XianyuAgent.py              # AI回复机器人核心逻辑
+├── XianyuApis.py               # 咸鱼API接口封装
+├── context_manager.py          # 聊天上下文管理器
+├── web_frontend/               # Web前端目录
+│   ├── app.py                 # Flask主应用
+│   ├── services/              # 业务逻辑层
+│   │   └── log_service.py     # 日志处理服务
+│   ├── static/                # 静态资源
+│   │   ├── css/
+│   │   │   └── styles.css     # 样式文件
+│   │   ├── js/
+│   │   │   └── main.js        # 前端交互逻辑
+│   │   └── images/            # 图片资源
+│   ├── templates/             # HTML模板
+│   │   └── index.html         # 主页面
+│   └── requirements_web.txt   # Web端依赖
+├── utils/                      # 工具函数目录
 │   ├── __init__.py
-│   └── xianyu_utils.py      # 闲鱼平台专用工具函数
-├── prompts/                  # AI提示词模板目录
-│   ├── classify_prompt.txt   # 意图分类提示词
-│   ├── default_prompt.txt    # 默认回复提示词
-│   ├── price_prompt.txt      # 价格专家提示词
-│   ├── tech_prompt.txt       # 技术专家提示词
-│   └── *_example.txt         # 对应的示例模板文件
-├── data/                     # 数据存储目录
-│   └── chat_history.db       # SQLite聊天历史数据库
-├── images/                   # 图片资源目录
-│   ├── demo*.png            # 效果演示图
-│   ├── wx_group*.png        # 微信群二维码
-│   └── *pay.jpg             # 支付二维码
-├── PROJECT_FRAMEWORK.md     # 项目框架文档（本文档）
-├── CODING_STANDARDS.md      # 编码规范文档
-├── LOGGING_GUIDELINES.md    # 日志记录规范
-├── ENV_CONFIG.md            # 环境配置说明
-├── requirements.txt         # Python依赖包列表
-├── .env                     # 环境变量配置文件
-├── .gitignore              # Git忽略文件配置
-├── .dockerignore           # Docker忽略文件配置
-├── Dockerfile              # Docker容器配置
-├── docker-compose.yml      # Docker Compose配置
-├── LICENSE                 # 开源许可证
-└── README.md              # 项目说明文档
+│   └── xianyu_utils.py        # 咸鱼相关工具函数
+├── logs/                       # 日志目录
+├── data/                       # 数据存储目录
+├── prompts/                    # AI提示词目录
+├── config_backups/             # 配置备份目录
+├── prompt_backups/             # 提示词备份目录
+├── web_manager/                # Web管理相关
+├── images/                     # 图片资源
+├── requirements.txt            # 主程序依赖
+├── ENV_CONFIG.md              # 环境配置说明
+├── PROJECT_FRAMEWORK.md       # 本文档
+├── .env                       # 环境变量配置
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── LICENSE
+└── README.md
 ```
 
 ## 🔧 核心组件说明
 
-### 1. 主要模块架构
+### 1. 主程序模块 (main.py)
+- **功能**: 咸鱼WebSocket连接管理，实时消息处理
+- **日志输出**: 
+  - 连接心跳信息
+  - 用户消息接收日志
+  - AI回复发送日志
+  - 系统状态信息
+- **技术栈**: asyncio, websockets, loguru
 
-#### main.py - 主程序控制器
-- **核心类**: `XianyuLive`
-- **主要功能**:
-  - WebSocket连接管理和心跳机制
-  - Token自动刷新和会话保持
-  - 消息路由和分发
-  - 人工接管模式控制
-- **关键配置**: 心跳间隔、Token刷新机制、人工接管关键词
+### 2. AI代理模块 (XianyuAgent.py)
+- **功能**: AI回复逻辑，智能客服对话生成
+- **集成**: OpenAI API接口调用
+- **上下文管理**: 多轮对话上下文维护
 
-#### XianyuAgent.py - AI智能体系统
-- **核心类**: 
-  - `XianyuReplyBot`: 主要的AI回复机器人
-  - `IntentRouter`: 意图识别路由器
-  - `BaseAgent`: Agent基类
-  - `PriceAgent`: 价格专家Agent
-  - `TechAgent`: 技术专家Agent
-  - `ClassifyAgent`: 分类专家Agent
-  - `DefaultAgent`: 默认回复Agent
-- **设计模式**: 策略模式 + 多专家协同决策
-- **路由策略**: 技术类优先 → 价格类 → 大模型兜底
+### 3. API接口模块 (XianyuApis.py)
+- **功能**: 咸鱼平台API封装
+- **包含**: 用户认证、商品信息获取、消息发送等
 
-#### XianyuApis.py - API接口层
-- **核心类**: `XianyuApis`
-- **主要功能**:
-  - 闲鱼平台Token获取和刷新
-  - Cookie管理和自动更新
-  - 登录状态检查和维护
-  - 商品信息获取
+### 4. 上下文管理 (context_manager.py)
+- **功能**: 聊天会话上下文管理
+- **特性**: 多用户会话隔离，上下文持久化
 
-#### context_manager.py - 上下文管理
-- **核心类**: `ChatContextManager`
-- **数据存储**: SQLite数据库
-- **主要表结构**:
-  - `messages`: 聊天消息记录
-  - `chat_bargain_counts`: 议价次数统计
-  - `items`: 商品信息缓存
-- **功能特性**: 会话ID管理、历史消息限制、议价计数
+### 5. Web前端模块 (web_frontend/)
+- **app.py**: Flask主应用，提供Web服务和WebSocket通信
+- **log_service.py**: 日志处理服务，实时读取main.py日志输出
+- **前端页面**: 实时日志显示界面，支持WebSocket实时推送
 
-### 2. 工具和配置模块
+### 6. 工具模块 (utils/)
+- **xianyu_utils.py**: 咸鱼平台相关工具函数
+- **包含**: UUID生成、设备ID生成、Cookie处理、加密解密等
 
-#### utils/xianyu_utils.py - 平台工具函数
-- **功能**: 设备ID生成、UUID生成、签名算法、Cookie转换、数据解密
+## 🔍 系统运行流程
 
-#### prompts/ - AI提示词管理
-- **模板分类**: 分类、价格、技术、默认四大专家领域
-- **格式**: 纯文本文件，支持热重载
+### 主程序运行流程
+1. **初始化阶段** → 加载环境配置，初始化API客户端
+2. **Token获取** → 通过Cookie获取访问令牌
+3. **WebSocket连接** → 建立与咸鱼服务器的实时连接
+4. **消息监听** → 实时接收用户消息和系统通知
+5. **AI处理** → 调用AI代理生成回复内容
+6. **消息发送** → 通过WebSocket发送回复消息
+7. **日志记录** → 记录所有操作和状态信息
 
-## 🔍 核心业务流程
+### Web前端运行流程
+1. **服务启动** → Flask应用启动，监听Web端口
+2. **日志监控** → 实时监控main.py的日志输出文件
+3. **WebSocket推送** → 将日志内容实时推送到前端
+4. **页面显示** → 浏览器实时显示格式化的日志信息
 
-### 消息处理流程
-1. **WebSocket接收** → 消息解析和过滤
-2. **上下文加载** → 从数据库获取对话历史
-3. **意图识别** → 多级路由决策（关键词→正则→LLM）
-4. **专家分发** → 根据意图调用对应Agent
-5. **回复生成** → LLM生成回复并应用安全过滤
-6. **上下文更新** → 保存新消息到数据库
-7. **消息发送** → 通过WebSocket发送回复
+**✅ 实时日志显示功能已完成配置！**
+- main.py已配置文件日志输出
+- Web前端正在实时监控日志文件
+- 支持心跳、用户消息、AI回复、错误等各种日志类型的实时显示
+- 访问 http://localhost:8080 查看实时日志流
 
-### 人工接管机制
-- **触发**: 检测到特定关键词（默认为句号"。"）
-- **状态管理**: 基于会话ID的接管状态跟踪
-- **超时机制**: 自动退出人工模式（默认1小时）
+## 📊 日志系统架构
 
-### Token管理机制
-- **自动刷新**: 定时检查Token有效期（默认1小时）
-- **失败重试**: Token获取失败时的重试机制
-- **连接重建**: Token刷新后自动重新建立WebSocket连接
+### 日志分类
+- **INFO级别**: 
+  - 用户消息接收: `用户: {用户名} (ID: {用户ID}), 商品: {商品ID}, 会话: {会话ID}, 消息: {消息内容}`
+  - AI回复发送: `机器人回复: {回复内容}`
+  - 连接状态: `连接注册完成`、`Token刷新成功`
+  
+- **WARNING级别**:
+  - 连接异常: `心跳响应超时，可能连接已断开`
+  - 数据异常: `无法获取商品ID`
+  
+- **ERROR级别**:
+  - 系统错误: `Token刷新失败`、`处理消息时发生错误`
+  - 连接错误: `连接发生错误`
 
-## 🚀 开发和扩展指南
+### 日志格式
+使用loguru库，支持彩色输出和结构化日志记录
 
-### 新增专家Agent流程
-1. **定义提示词** → 在prompts/目录创建新的提示词文件
-2. **创建Agent类** → 继承BaseAgent并实现generate方法
-3. **注册Agent** → 在XianyuReplyBot._init_agents()中注册
-4. **更新路由** → 在IntentRouter中添加相应路由规则
+## 🚀 部署和运行
 
-### 配置管理最佳实践
-- **敏感配置**: 使用.env文件存储API密钥、Cookie等
-- **功能开关**: 通过环境变量控制功能启用/禁用
-- **超时配置**: 所有超时参数都可通过环境变量调整
+### 主程序运行
+```bash
+# 安装依赖
+pip install -r requirements.txt
 
-### 数据库扩展
-- **新表创建**: 在ChatContextManager._init_db()中添加
-- **索引优化**: 为查询频繁的字段添加索引
-- **数据迁移**: 兼容处理旧版本数据库结构
+# 配置环境变量
+cp .env.example .env
 
-## 🔍 问题定位指南
+# 运行主程序
+python main.py
+```
 
-### 常见问题类型及定位方法
+### Web前端运行
+```bash
+# 进入前端目录
+cd web_frontend
 
-| 问题类型 | 首先检查 | 相关文件 | 日志关键词 |
-|---------|----------|----------|----------|
-| 连接问题 | .env配置、Cookie有效性 | main.py, XianyuApis.py | "Token", "Cookie", "WebSocket" |
-| AI回复问题 | 提示词文件、模型配置 | XianyuAgent.py, prompts/ | "Agent", "generate", "LLM" |
-| 上下文问题 | 数据库文件、权限 | context_manager.py | "SQLite", "chat_history" |
-| API调用问题 | 网络连接、接口变更 | XianyuApis.py | "API", "请求异常" |
+# 安装Web端依赖
+pip install -r requirements_web.txt
 
-### 快速排查步骤
-1. **查看日志** - 使用loguru的彩色日志快速定位问题层级
-2. **检查配置** - 验证.env文件中的关键配置项
-3. **测试连接** - 确认网络和Cookie有效性
-4. **数据库检查** - 验证SQLite文件完整性和权限
-5. **提示词验证** - 确认提示词文件存在且格式正确
+# 运行Web服务
+python app.py
+# 或使用简化启动脚本
+python run_web.py
+```
 
-## 📝 开发规范要点
+**注意：** 如果遇到启动失败，请确保：
+- 所有依赖已正确安装
+- Python路径配置正确
+- 无端口冲突（默认8080端口）
 
-### 代码组织原则
-- **单一职责**: 每个类和模块职责明确
-- **依赖注入**: 通过构造函数传递依赖
-- **配置外置**: 所有配置通过环境变量管理
-- **异常处理**: 完整的异常捕获和日志记录
+## 📝 配置管理
 
-### 日志记录规范
-- **结构化日志**: 使用loguru进行结构化日志记录
-- **关键节点**: 在重要业务流程节点记录日志
-- **错误追踪**: 详细记录异常堆栈和上下文信息
-- **性能监控**: 记录关键操作的耗时信息
+### 环境变量配置 (.env)
+- 咸鱼Cookie信息
+- OpenAI API配置
+- 心跳和重连参数
+- 人工接管配置
 
-### AI集成规范
-- **提示词管理**: 使用文件系统管理，支持热重载
-- **安全过滤**: 对AI生成内容进行安全检查
-- **错误恢复**: AI调用失败时的降级策略
-- **上下文控制**: 合理控制输入上下文长度
+### 功能开关
+- 人工接管模式
+- 自动回复开关
+- 日志级别控制
 
-## 🔄 文档维护
-- 项目架构变更时及时更新本文档
-- 新增核心组件时补充相应说明
-- 定期审查和优化问题定位指南
-- 保持与实际代码的同步更新 
+## 🔄 扩展和维护
+
+### 新增功能开发流程
+1. **确定功能范围** → 分析需求，确定修改范围
+2. **选择修改模块** → 根据功能类型选择对应模块
+3. **实现核心逻辑** → 在相应模块中实现功能
+4. **更新日志输出** → 添加必要的日志记录
+5. **测试验证** → 验证功能正常运行
+6. **更新文档** → 同步更新架构文档
+
+### 问题排查指南
+| 问题类型 | 检查项目 | 相关文件 |
+|---------|----------|----------|
+| 连接问题 | Cookie有效性、Token状态 | main.py, .env |
+| AI回复问题 | OpenAI API配置、提示词 | XianyuAgent.py, prompts/ |
+| 消息处理问题 | WebSocket状态、消息解析 | main.py, XianyuApis.py |
+| Web前端问题 | Flask服务、日志读取 | web_frontend/ |
+
+## 📋 注意事项
+
+### 安全要求
+- Cookie信息必须保密，存储在.env文件中
+- 不要将敏感信息提交到代码仓库
+- 定期更新访问令牌
+
+### 性能考虑
+- 日志文件定期清理，避免占用过多磁盘空间
+- WebSocket连接异常时自动重连
+- 合理设置心跳间隔，平衡性能和稳定性
+
+### 开发规范
+- 所有新增代码必须包含详细的中文注释
+- 重要操作必须添加日志记录
+- 遵循现有的代码风格和架构设计 
