@@ -363,7 +363,7 @@ def log_stream():
     )
 
 
-def run_web_app(host='127.0.0.1', port=5000, debug=False):
+def run_web_app(host='0.0.0.0', port=5000, debug=False):
     """运行Web应用"""
     logger.info(f"启动Web应用: http://{host}:{port}")
     app.run(host=host, port=port, debug=debug, threaded=True)
@@ -374,7 +374,7 @@ if __name__ == '__main__':
         # 处理命令行参数
         import argparse
         parser = argparse.ArgumentParser(description='咸鱼AI客服系统 - Web管理界面')
-        parser.add_argument('--host', default='127.0.0.1', help='服务器主机地址')
+        parser.add_argument('--host', default='0.0.0.0', help='服务器主机地址')
         parser.add_argument('--port', type=int, default=5000, help='服务器端口')
         parser.add_argument('--debug', action='store_true', help='启用调试模式')
         

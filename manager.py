@@ -15,9 +15,9 @@ import subprocess
 from datetime import datetime
 
 # 配置参数
-WEB_HOST = "127.0.0.1"
+WEB_HOST = "0.0.0.0"
 WEB_PORT = 5000
-WEB_URL = f"http://{WEB_HOST}:{WEB_PORT}"
+WEB_URL = f"http://192.210.183.167:{WEB_PORT}"
 
 class WebAppManager:
     """Web应用管理器"""
