@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>咸鱼AI客服系统 - 实时日志监控</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    <!-- 页面头部 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 class="title">
+                    <span class="icon">🐟</span>
+                    咸鱼AI客服系统
+                </h1>
+                <p class="subtitle">实时日志监控</p>
+            </div>
+            <div class="status-section">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <span class="status-text" id="statusText">连接中...</span>
+                </div>
+                <div class="stats" id="statsInfo">
+                    <span class="stat-item">
+                        <span class="stat-label">在线:</span>
+                        <span class="stat-value" id="clientCount">0</span>
+                    </span>
+                    <span class="stat-item">
+                        <span class="stat-label">日志:</span>
+                        <span class="stat-value" id="logCount">0</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 控制面板 -->
+    <div class="control-panel">
+        <div class="panel-content">
+            <div class="control-group">
+                <button class="btn btn-primary" id="pauseBtn" onclick="togglePause()">
+                    <span id="pauseIcon">⏸️</span>
+                    <span id="pauseText">暂停</span>
+                </button>
+                <button class="btn btn-secondary" onclick="clearLogs()">
+                    🗑️ 清空日志
+                </button>
+                <button class="btn btn-secondary" onclick="requestHistory()">
+                    📋 加载历史
+                </button>
+                <button class="btn btn-secondary" onclick="loadDemoLogs()">
+                    🎭 演示数据
+                </button>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">日志级别过滤：</label>
+                <div class="filter-checkboxes">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="filterInfo" checked onchange="updateFilter()">
+                        <span class="level-info">INFO</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="filterWarning" checked onchange="updateFilter()">
+                        <span class="level-warning">WARNING</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="filterError" checked onchange="updateFilter()">
+                        <span class="level-error">ERROR</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="filterDebug" onchange="updateFilter()">
+                        <span class="level-debug">DEBUG</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日志容器 -->
+    <main class="main-content">
+        <div class="log-container">
+            <div class="log-header">
+                <h3 class="log-title">
+                    <span class="icon">📋</span>
+                    实时日志流
+                </h3>
+                <div class="log-info">
+                    <span id="logFileInfo">等待连接...</span>
+                </div>
+            </div>
+            
+            <!-- 日志内容区域 -->
+            <div class="log-content" id="logContent">
+                <div class="log-placeholder">
+                    <div class="placeholder-icon">⏳</div>
+                    <div class="placeholder-text">等待日志数据...</div>
+                    <div class="placeholder-subtitle">系统正在连接到日志监控服务</div>
+                </div>
+            </div>
+            
+            <!-- 自动滚动控制 -->
+            <div class="scroll-control">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoScroll" checked onchange="toggleAutoScroll()">
+                    <span>📍 自动滚动到底部</span>
+                </label>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部状态栏 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span class="timestamp" id="lastUpdateTime">最后更新: --</span>
+            </div>
+            <div class="footer-center">
+                <span class="version">咸鱼AI客服系统 v1.0</span>
+            </div>
+            <div class="footer-right">
+                <span class="server-status" id="serverStatus">服务器状态: 检查中...</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 弹出提示框 -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <span class="toast-icon" id="toastIcon">ℹ️</span>
+            <span class="toast-message" id="toastMessage">这是一条提示消息</span>
+        </div>
+    </div>
+
+    <!-- JavaScript脚本 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 

@@ -160,3 +160,11 @@ https://github.com/cv-cat/XianYuApis
 </a>
 
 
+# 一键清理所有Web管理器进程
+pkill -f "python.*app.py\|uvicorn\|npm.*dev"
+
+# 等待几秒确保进程完全停止
+sleep 3
+
+# 重新启动
+python web_manager/start.py
